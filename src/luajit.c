@@ -12,12 +12,12 @@
 
 #define luajit_c
 
-#include "lua.h"
-#include "lauxlib.h"
-#include "lualib.h"
-#include "luajit.h"
+#include <lua.h>
+#include <lauxlib.h>
+#include <lualib.h>
+#include <luajit.h>
 
-#include "lj_arch.h"
+#include "asm/lj_arch.h"
 
 #if LJ_TARGET_POSIX
 #include <unistd.h>

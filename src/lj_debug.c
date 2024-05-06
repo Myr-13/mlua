@@ -16,7 +16,7 @@
 #include "lj_bc.h"
 #include "lj_strfmt.h"
 #if LJ_HASJIT
-#include "lj_jit.h"
+#include "asm/lj_jit.h"
 #endif
 
 /* -- Frames -------------------------------------------------------------- */

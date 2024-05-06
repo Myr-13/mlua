@@ -6,8 +6,8 @@
 #ifndef _LJ_TARGET_H
 #define _LJ_TARGET_H
 
+#include "asm/lj_arch.h"
 #include "lj_def.h"
-#include "lj_arch.h"
 
 /* -- Registers and spill slots ------------------------------------------- */
 

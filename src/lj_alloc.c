@@ -28,9 +28,9 @@
 #define _GNU_SOURCE
 #endif
 
-#include "lj_def.h"
-#include "lj_arch.h"
 #include "lj_alloc.h"
+#include "asm/lj_arch.h"
+#include "lj_def.h"
 #include "lj_prng.h"
 
 #ifndef LUAJIT_USE_SYSMALLOC

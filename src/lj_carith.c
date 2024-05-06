@@ -7,16 +7,16 @@
 
 #if LJ_HASFFI
 
-#include "lj_gc.h"
-#include "lj_err.h"
-#include "lj_tab.h"
-#include "lj_meta.h"
-#include "lj_ir.h"
-#include "lj_ctype.h"
+#include "asm/lj_ir.h"
+#include "lj_carith.h"
 #include "lj_cconv.h"
 #include "lj_cdata.h"
-#include "lj_carith.h"
+#include "lj_ctype.h"
+#include "lj_err.h"
+#include "lj_gc.h"
+#include "lj_meta.h"
 #include "lj_strscan.h"
+#include "lj_tab.h"
 
 /* -- C data arithmetic --------------------------------------------------- */
 

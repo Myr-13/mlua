@@ -14,7 +14,7 @@ LJ_FUNC void lj_mcode_sync(void *start, void *end);
 
 #if LJ_HASJIT
 
-#include "lj_jit.h"
+#include "asm/lj_jit.h"
 
 LJ_FUNC void lj_mcode_free(jit_State *J);
 LJ_FUNC MCode *lj_mcode_reserve(jit_State *J, MCode **lim);

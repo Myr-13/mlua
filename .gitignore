@@ -9,3 +9,7 @@
 *.dmp
 *.swp
 .tags
+
+build
+out
+.idea

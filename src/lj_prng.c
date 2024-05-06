@@ -11,9 +11,9 @@
 #define _GNU_SOURCE
 #endif
 
-#include "lj_def.h"
-#include "lj_arch.h"
 #include "lj_prng.h"
+#include "asm/lj_arch.h"
+#include "lj_def.h"
 
 /* -- PRNG step function -------------------------------------------------- */
 

@@ -6,8 +6,8 @@
 #ifndef _LJ_FFRECORD_H
 #define _LJ_FFRECORD_H
 
+#include "asm/lj_jit.h"
 #include "lj_obj.h"
-#include "lj_jit.h"
 
 #if LJ_HASJIT
 /* Data used by handlers to record a fast function. */

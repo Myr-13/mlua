@@ -13,12 +13,12 @@
 
 #if LJ_HASJIT
 
-#include "lj_tab.h"
-#include "lj_ir.h"
-#include "lj_jit.h"
-#include "lj_iropt.h"
-#include "lj_ircall.h"
+#include "asm/lj_ir.h"
+#include "asm/lj_ircall.h"
+#include "asm/lj_iropt.h"
+#include "asm/lj_jit.h"
 #include "lj_dispatch.h"
+#include "lj_tab.h"
 
 /* Some local macros to save typing. Undef'd at the end. */
 #define IR(ref)		(&J->cur.ir[(ref)])

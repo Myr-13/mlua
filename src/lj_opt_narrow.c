@@ -11,13 +11,13 @@
 
 #if LJ_HASJIT
 
+#include "asm/lj_ir.h"
+#include "asm/lj_iropt.h"
+#include "asm/lj_jit.h"
 #include "lj_bc.h"
-#include "lj_ir.h"
-#include "lj_jit.h"
-#include "lj_iropt.h"
+#include "lj_strscan.h"
 #include "lj_trace.h"
 #include "lj_vm.h"
-#include "lj_strscan.h"
 
 /* Rationale for narrowing optimizations:
 **

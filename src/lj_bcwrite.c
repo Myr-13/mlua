@@ -14,8 +14,8 @@
 #include "lj_ctype.h"
 #endif
 #if LJ_HASJIT
+#include "asm/lj_jit.h"
 #include "lj_dispatch.h"
-#include "lj_jit.h"
 #endif
 #include "lj_strfmt.h"
 #include "lj_bcdump.h"

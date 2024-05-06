@@ -7,17 +7,17 @@
 
 #if LJ_HASFFI
 
-#include "lj_gc.h"
-#include "lj_err.h"
-#include "lj_tab.h"
-#include "lj_state.h"
-#include "lj_frame.h"
-#include "lj_ctype.h"
-#include "lj_cconv.h"
+#include "asm/lj_target.h"
 #include "lj_ccall.h"
 #include "lj_ccallback.h"
-#include "lj_target.h"
+#include "lj_cconv.h"
+#include "lj_ctype.h"
+#include "lj_err.h"
+#include "lj_frame.h"
+#include "lj_gc.h"
 #include "lj_mcode.h"
+#include "lj_state.h"
+#include "lj_tab.h"
 #include "lj_trace.h"
 #include "lj_vm.h"
 

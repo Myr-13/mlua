@@ -10,10 +10,10 @@
 
 #if LJ_HASJIT
 
-#include "lj_ir.h"
-#include "lj_jit.h"
-#include "lj_iropt.h"
-#include "lj_target.h"
+#include "asm/lj_ir.h"
+#include "asm/lj_iropt.h"
+#include "asm/lj_jit.h"
+#include "asm/lj_target.h"
 
 /* Some local macros to save typing. Undef'd at the end. */
 #define IR(ref)		(&J->cur.ir[(ref)])

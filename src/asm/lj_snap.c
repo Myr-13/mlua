@@ -10,17 +10,17 @@
 
 #if LJ_HASJIT
 
-#include "lj_gc.h"
-#include "lj_tab.h"
-#include "lj_state.h"
-#include "lj_frame.h"
+#include "asm/lj_ir.h"
+#include "asm/lj_iropt.h"
+#include "asm/lj_jit.h"
+#include "asm/lj_target.h"
 #include "lj_bc.h"
-#include "lj_ir.h"
-#include "lj_jit.h"
-#include "lj_iropt.h"
-#include "lj_trace.h"
+#include "lj_frame.h"
+#include "lj_gc.h"
 #include "lj_snap.h"
-#include "lj_target.h"
+#include "lj_state.h"
+#include "lj_tab.h"
+#include "lj_trace.h"
 #if LJ_HASFFI
 #include "lj_ctype.h"
 #include "lj_cdata.h"

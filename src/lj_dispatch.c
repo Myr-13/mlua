@@ -20,7 +20,7 @@
 #include "lj_ff.h"
 #include "lj_strfmt.h"
 #if LJ_HASJIT
-#include "lj_jit.h"
+#include "asm/lj_jit.h"
 #endif
 #if LJ_HASFFI
 #include "lj_ccallback.h"

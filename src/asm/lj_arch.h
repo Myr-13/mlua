@@ -6,8 +6,6 @@
 #ifndef _LJ_ARCH_H
 #define _LJ_ARCH_H
 
-#include "lua.h"
-
 /* -- Target definitions -------------------------------------------------- */
 
 /* Target endianess. */

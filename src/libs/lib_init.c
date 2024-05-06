@@ -13,7 +13,7 @@
 #include "lauxlib.h"
 #include "lualib.h"
 
-#include "lj_arch.h"
+#include "asm/lj_arch.h"
 
 static const luaL_Reg lj_lib_load[] = {
   { "",			luaopen_base },

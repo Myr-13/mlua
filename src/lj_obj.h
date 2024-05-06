@@ -9,9 +9,9 @@
 #ifndef _LJ_OBJ_H
 #define _LJ_OBJ_H
 
-#include "lua.h"
+#include "asm/lj_arch.h"
 #include "lj_def.h"
-#include "lj_arch.h"
+#include "lua.h"
 
 /* -- Memory references --------------------------------------------------- */
 

@@ -8,13 +8,13 @@
 
 #include "lj_obj.h"
 #if LJ_HASJIT
-#include "lj_gc.h"
-#include "lj_err.h"
-#include "lj_jit.h"
-#include "lj_mcode.h"
-#include "lj_trace.h"
+#include "asm/lj_jit.h"
 #include "lj_dispatch.h"
+#include "lj_err.h"
+#include "lj_gc.h"
+#include "lj_mcode.h"
 #include "lj_prng.h"
+#include "lj_trace.h"
 #endif
 #if LJ_HASJIT || LJ_HASFFI
 #include "lj_vm.h"

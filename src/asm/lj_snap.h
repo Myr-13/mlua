@@ -6,8 +6,8 @@
 #ifndef _LJ_SNAP_H
 #define _LJ_SNAP_H
 
+#include "asm/lj_jit.h"
 #include "lj_obj.h"
-#include "lj_jit.h"
 
 #if LJ_HASJIT
 LJ_FUNC void lj_snap_add(jit_State *J);

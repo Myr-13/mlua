@@ -9,7 +9,7 @@
 #include "lj_obj.h"
 
 #if LJ_HASJIT
-#include "lj_jit.h"
+#include "asm/lj_jit.h"
 #include "lj_dispatch.h"
 
 /* Trace errors. */

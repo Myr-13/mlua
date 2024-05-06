@@ -22,11 +22,11 @@
 #include "lj_ctype.h"
 #endif
 #if LJ_HASJIT
-#include "lj_ir.h"
-#include "lj_jit.h"
-#include "lj_ircall.h"
-#include "lj_iropt.h"
-#include "lj_target.h"
+#include "asm/lj_ir.h"
+#include "asm/lj_ircall.h"
+#include "asm/lj_iropt.h"
+#include "asm/lj_jit.h"
+#include "asm/lj_target.h"
 #endif
 #include "lj_trace.h"
 #include "lj_dispatch.h"

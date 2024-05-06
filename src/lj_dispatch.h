@@ -9,7 +9,7 @@
 #include "lj_obj.h"
 #include "lj_bc.h"
 #if LJ_HASJIT
-#include "lj_jit.h"
+#include "asm/lj_jit.h"
 #endif
 
 #if LJ_TARGET_MIPS

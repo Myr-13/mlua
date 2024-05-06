@@ -9,8 +9,8 @@
 #include <errno.h>
 #include <math.h>
 
+#include "asm/lj_ir.h"
 #include "lj_obj.h"
-#include "lj_ir.h"
 #include "lj_vm.h"
 
 /* -- Wrapper functions --------------------------------------------------- */

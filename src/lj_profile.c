@@ -15,7 +15,7 @@
 #include "lj_debug.h"
 #include "lj_dispatch.h"
 #if LJ_HASJIT
-#include "lj_jit.h"
+#include "asm/lj_jit.h"
 #include "lj_trace.h"
 #endif
 #include "lj_profile.h"

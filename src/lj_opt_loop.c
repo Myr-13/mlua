@@ -10,13 +10,13 @@
 
 #if LJ_HASJIT
 
-#include "lj_err.h"
+#include "asm/lj_ir.h"
+#include "asm/lj_iropt.h"
+#include "asm/lj_jit.h"
+#include "asm/lj_snap.h"
 #include "lj_buf.h"
-#include "lj_ir.h"
-#include "lj_jit.h"
-#include "lj_iropt.h"
+#include "lj_err.h"
 #include "lj_trace.h"
-#include "lj_snap.h"
 #include "lj_vm.h"
 
 /* Loop optimization:

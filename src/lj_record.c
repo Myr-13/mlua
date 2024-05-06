@@ -23,17 +23,17 @@
 #if LJ_HASPROFILE
 #include "lj_debug.h"
 #endif
-#include "lj_ir.h"
-#include "lj_jit.h"
-#include "lj_ircall.h"
-#include "lj_iropt.h"
-#include "lj_trace.h"
-#include "lj_record.h"
-#include "lj_ffrecord.h"
-#include "lj_snap.h"
+#include "asm/lj_ir.h"
+#include "asm/lj_ircall.h"
+#include "asm/lj_iropt.h"
+#include "asm/lj_jit.h"
+#include "asm/lj_snap.h"
 #include "lj_dispatch.h"
-#include "lj_vm.h"
+#include "lj_ffrecord.h"
 #include "lj_prng.h"
+#include "lj_record.h"
+#include "lj_trace.h"
+#include "lj_vm.h"
 
 /* Some local macros to save typing. Undef'd at the end. */
 #define IR(ref)			(&J->cur.ir[(ref)])

@@ -6,8 +6,8 @@
 #ifndef _LJ_BC_H
 #define _LJ_BC_H
 
+#include "asm/lj_arch.h"
 #include "lj_def.h"
-#include "lj_arch.h"
 
 /* Bytecode instruction format, 32 bit wide, fields of 8 or 16 bit:
 **

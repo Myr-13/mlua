@@ -7,3 +7,4 @@ target_include_directories(luajit_lib PRIVATE src include/lua)
 
 add_executable(luajit "src/luajit.c")
 target_link_libraries(luajit luajit_lib)
+target_include_directories(luajit PRIVATE include/lua)

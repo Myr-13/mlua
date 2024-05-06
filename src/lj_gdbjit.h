@@ -6,8 +6,8 @@
 #ifndef _LJ_GDBJIT_H
 #define _LJ_GDBJIT_H
 
+#include "asm/lj_jit.h"
 #include "lj_obj.h"
-#include "lj_jit.h"
 
 #if LJ_HASJIT && defined(LUAJIT_USE_GDBJIT)
 

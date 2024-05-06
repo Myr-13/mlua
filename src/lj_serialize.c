@@ -19,7 +19,7 @@
 #include "lj_cdata.h"
 #endif
 #if LJ_HASJIT
-#include "lj_ir.h"
+#include "asm/lj_ir.h"
 #endif
 #include "lj_serialize.h"
 

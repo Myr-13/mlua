@@ -6,8 +6,8 @@
 #ifndef _LJ_RECORD_H
 #define _LJ_RECORD_H
 
+#include "asm/lj_jit.h"
 #include "lj_obj.h"
-#include "lj_jit.h"
 
 #if LJ_HASJIT
 /* Context for recording an indexed load/store. */
