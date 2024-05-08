@@ -2448,6 +2448,7 @@ static void parse_block(LexState *ls)
 	fscope_end(fs);
 }
 
+/* Parse a block with one statement. */
 static void parse_block_one_stmt(LexState *ls)
 {
 	FuncState *fs = ls->fs;
@@ -2463,6 +2464,7 @@ static void parse_while(LexState *ls, BCLine line)
 	FuncState *fs = ls->fs;
 	BCPos start, loop, condexit;
 	FuncScope bl;
+	int one_stmt = 0;
 
 	lj_lex_next(ls);  /* Skip 'while'. */
 
@@ -2470,12 +2472,19 @@ static void parse_while(LexState *ls, BCLine line)
 	condexit = expr_cond(ls);
 
 	fscope_begin(fs, &bl, FSCOPE_LOOP);
-	lex_check(ls, TK_do);
+	if(lex_opt(ls, '?'))
+		one_stmt = 1;
+	else
+		lex_check(ls, TK_do);
 	loop = bcemit_AD(fs, BC_LOOP, fs->nactvar, 0);
 
-	parse_block(ls);
+	if(one_stmt)
+		parse_block_one_stmt(ls);
+	else
+		parse_block(ls);
 	jmp_patch(fs, bcemit_jmp(fs), start);
-	lex_match(ls, TK_end, TK_while, line);
+	if(!one_stmt)
+		lex_match(ls, TK_end, TK_while, line);
 
 	fscope_end(fs);
 
@@ -2516,7 +2525,7 @@ static void parse_repeat(LexState *ls, BCLine line)
 }
 
 /* Parse numeric 'for'. */
-static void parse_for_num(LexState *ls, GCstr *varname, BCLine line)
+static void parse_for_num(LexState *ls, GCstr *varname, BCLine line, int *one_stmt)
 {
 	FuncState *fs = ls->fs;
 	BCReg base = fs->freereg;
@@ -2543,12 +2552,20 @@ static void parse_for_num(LexState *ls, GCstr *varname, BCLine line)
 	}
 	var_add(ls, 3);  /* Hidden control variables. */
 
-	lex_check(ls, TK_do);
+	*one_stmt = 0;
+	if(lex_opt(ls, '?'))
+		*one_stmt = 1;
+	else
+		lex_check(ls, TK_do);
+
 	loop = bcemit_AJ(fs, BC_FORI, base, NO_JMP);
 	fscope_begin(fs, &bl, 0);  /* Scope for visible variables. */
 	var_add(ls, 1);
 	bcreg_reserve(fs, 1);
-	parse_block(ls);
+	if(*one_stmt)
+		parse_block_one_stmt(ls);
+	else
+		parse_block(ls);
 	fscope_end(fs);
 
 	/* Perform loop inversion. Loop control instructions are at the end. */
@@ -2601,7 +2618,7 @@ static int predict_next(LexState *ls, FuncState *fs, BCPos pc)
 }
 
 /* Parse 'for' iterator. */
-static void parse_for_iter(LexState *ls, GCstr *indexname)
+static void parse_for_iter(LexState *ls, GCstr *indexname, int *one_stmt)
 {
 	FuncState *fs = ls->fs;
 	ExpDesc e;
@@ -2629,13 +2646,19 @@ static void parse_for_iter(LexState *ls, GCstr *indexname)
 	bcreg_bump(fs, 3+ls->fr2);
 	isnext = (nvars <= 5 && predict_next(ls, fs, exprpc));
 	var_add(ls, 3);  /* Hidden control variables. */
-	lex_check(ls, TK_do);
+	if(lex_opt(ls, '?'))
+		*one_stmt = 1;
+	else
+		lex_check(ls, TK_do);
 
 	loop = bcemit_AJ(fs, isnext ? BC_ISNEXT : BC_JMP, base, NO_JMP);
 	fscope_begin(fs, &bl, 0);  /* Scope for visible variables. */
 	var_add(ls, nvars-3);
 	bcreg_reserve(fs, nvars-3);
-	parse_block(ls);
+	if(*one_stmt)
+		parse_block_one_stmt(ls);
+	else
+		parse_block(ls);
 	fscope_end(fs);
 
 	/* Perform loop inversion. Loop control instructions are at the end. */
@@ -2658,36 +2681,41 @@ static void parse_for(LexState *ls, BCLine line)
 	FuncState *fs = ls->fs;
 	GCstr *varname;
 	FuncScope bl;
+	int one_stmt = 0;
+
 	fscope_begin(fs, &bl, FSCOPE_LOOP);
 	lj_lex_next(ls);  /* Skip 'for'. */
 	varname = lex_str(ls);  /* Get first variable name. */
-	if (ls->tok == '=')
-		parse_for_num(ls, varname, line);
-	else if (ls->tok == ',' || ls->tok == TK_in)
-		parse_for_iter(ls, varname);
+
+	if(ls->tok == '=')
+		parse_for_num(ls, varname, line, &one_stmt);
+	else if(ls->tok == ',' || ls->tok == TK_in)
+		parse_for_iter(ls, varname, &one_stmt);
 	else
 		err_syntax(ls, LJ_ERR_XFOR);
-	lex_match(ls, TK_end, TK_for, line);
+
+	if(!one_stmt)
+		lex_match(ls, TK_end, TK_for, line);
 	fscope_end(fs);  /* Resolve break list. */
 }
 
 /* Parse condition and 'then' block. */
-static BCPos parse_then(LexState *ls, int *found)
+static BCPos parse_then(LexState *ls, int *one_stmt)
 {
 	BCPos condexit;
 	lj_lex_next(ls);  /* Skip 'if' or 'elseif'. */
 	condexit = expr_cond(ls);
 
-	if(ls->tok == TK_then)
-	{
-		*found = 1;
-		lj_lex_next(ls);  // Skip 'then'.
-	}
-
-	if(*found)
-		parse_block(ls);
+	*one_stmt = 0;
+	if(lex_opt(ls, '?'))
+		*one_stmt = 1;
 	else
+		lex_check(ls, TK_then);
+
+	if(*one_stmt)
 		parse_block_one_stmt(ls);
+	else
+		parse_block(ls);
 
 	return condexit;
 }
@@ -2698,14 +2726,14 @@ static void parse_if(LexState *ls, BCLine line)
 	FuncState *fs = ls->fs;
 	BCPos flist;
 	BCPos escapelist = NO_JMP;
-	int found_then = 0;
+	int one_stmt = 0;
 
-	flist = parse_then(ls, &found_then);
+	flist = parse_then(ls, &one_stmt);
 	while(ls->tok == TK_elseif)  /* Parse multiple 'elseif' blocks. */
 	{
 		jmp_append(fs, &escapelist, bcemit_jmp(fs));
 		jmp_tohere(fs, flist);
-		flist = parse_then(ls, &found_then);
+		flist = parse_then(ls, &one_stmt);
 	}
 	if(ls->tok == TK_else)  /* Parse optional 'else' block. */
 	{
@@ -2714,16 +2742,16 @@ static void parse_if(LexState *ls, BCLine line)
 
 		lj_lex_next(ls);  /* Skip 'else'. */
 
-		if(found_then)
-			parse_block(ls);
-		else
+		if(lex_opt(ls, '?'))
 			parse_block_one_stmt(ls);
+		else
+			parse_block(ls);
 	} else
 		jmp_append(fs, &escapelist, flist);
 
 	jmp_tohere(fs, escapelist);
 
-	if(found_then)
+	if(!one_stmt)
 		lex_match(ls, TK_end, TK_if, line);
 }
 
