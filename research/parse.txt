@@ -1,0 +1,7 @@
+jmplist: (non-C)
+    - check image.png
+
+expr_cond:
+    - parse conditional (inserts conditional bytecode)
+    - insert conditional jmp on true
+    - return NO_JMP (ExpDesc.f)

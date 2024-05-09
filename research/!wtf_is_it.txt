@@ -1,0 +1,1 @@
+Just a smol file where I trying to understand how LuaJIT bytecode works

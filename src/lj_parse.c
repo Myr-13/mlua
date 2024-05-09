@@ -268,10 +268,9 @@ void lj_parse_keepcdata(LexState *ls, TValue *tv, GCcdata *cd)
 static BCPos jmp_next(FuncState *fs, BCPos pc)
 {
 	ptrdiff_t delta = bc_j(fs->bcbase[pc].ins);
-	if ((BCPos)delta == NO_JMP)
+	if((BCPos)delta == NO_JMP)
 		return NO_JMP;
-	else
-		return (BCPos)(((ptrdiff_t)pc+1)+delta);
+	return (BCPos)(((ptrdiff_t)pc + 1) + delta);
 }
 
 /* Check if any of the instructions on the jump list produce no value. */
@@ -332,17 +331,20 @@ static void jmp_patchins(FuncState *fs, BCPos pc, BCPos dest)
 /* Append to jump list. */
 static void jmp_append(FuncState *fs, BCPos *l1, BCPos l2)
 {
-	if (l2 == NO_JMP) {
+	if(l2 == NO_JMP)
 		return;
-	} else if (*l1 == NO_JMP) {
+
+	if(*l1 == NO_JMP)
+	{
 		*l1 = l2;
-	} else {
-		BCPos list = *l1;
-		BCPos next;
-		while ((next = jmp_next(fs, list)) != NO_JMP)  /* Find last element. */
-			list = next;
-		jmp_patchins(fs, list, l2);
+		return;
 	}
+
+	BCPos list = *l1;
+	BCPos next;
+	while((next = jmp_next(fs, list)) != NO_JMP)  /* Find last element. */
+		list = next;
+	jmp_patchins(fs, list, l2);
 }
 
 /* Patch jump list and preserve produced values. */
@@ -839,14 +841,18 @@ static void bcemit_comp(FuncState *fs, BinOpr opr, ExpDesc *e1, ExpDesc *e2)
 {
 	ExpDesc *eret = e1;
 	BCIns ins;
+
 	expr_toval(fs, e1);
-	if (opr == OPR_EQ || opr == OPR_NE) {
+	if(opr == OPR_EQ || opr == OPR_NE)
+	{
 		BCOp op = opr == OPR_EQ ? BC_ISEQV : BC_ISNEV;
 		BCReg ra;
-		if (expr_isk(e1)) { e1 = e2; e2 = eret; }  /* Need constant in 2nd arg. */
+
+		if(expr_isk(e1)) { e1 = e2; e2 = eret; }  /* Need constant in 2nd arg. */
 		ra = expr_toanyreg(fs, e1);  /* First arg must be in a reg. */
 		expr_toval(fs, e2);
-		switch (e2->k) {
+		switch(e2->k)
+		{
 		case VKNIL: case VKFALSE: case VKTRUE:
 			ins = BCINS_AD(op+(BC_ISEQP-BC_ISEQV), ra, const_pri(e2));
 			break;
@@ -1037,10 +1043,12 @@ static void lex_match(LexState *ls, LexToken what, LexToken who, BCLine line)
 static GCstr *lex_str(LexState *ls)
 {
 	GCstr *s;
-	if (ls->tok != TK_name && (LJ_52 || ls->tok != TK_goto))
+
+	if(ls->tok != TK_name && (LJ_52 || ls->tok != TK_goto))
 		err_token(ls, TK_name);
 	s = strV(&ls->tokval);
 	lj_lex_next(ls);
+
 	return s;
 }
 
@@ -2068,7 +2076,8 @@ static void synlevel_begin(LexState *ls)
 /* Convert token to binary operator. */
 static BinOpr token2binop(LexToken tok)
 {
-	switch (tok) {
+	switch(tok)
+	{
 	case '+':	return OPR_ADD;
 	case '-':	return OPR_SUB;
 	case '*':	return OPR_MUL;
@@ -2316,6 +2325,7 @@ static void parse_func(LexState *ls, BCLine line)
 	FuncState *fs;
 	ExpDesc v, b;
 	int needself = 0;
+
 	lj_lex_next(ls);  /* Skip 'function'. */
 	/* Parse function name. */
 	var_lookup(ls, &v);
@@ -2771,20 +2781,74 @@ static void parse_if(LexState *ls, BCLine line)
 		lex_match(ls, TK_end, TK_if, line);
 }
 
+// Parse switch statement.
+static void parse_switch(LexState *ls, BCLine line)
+{
+	FuncState *fs = ls->fs;
+	GCstr *varname;
+	ExpDesc vare;
+	BCPos escapelist = NO_JMP;
+	BCPos defaultlist = NO_JMP;
+
+	lj_lex_next(ls);  // Skip 'switch'.
+	//varname = lex_str(ls);
+	var_lookup(ls, &vare);
+
+	while(ls->tok == TK_case)
+	{
+		ExpDesc e1, e2;
+		e1 = vare;
+
+		lj_lex_next(ls);  // Skip 'case'.
+		expr(ls, &e2);
+		bcemit_comp(fs, OPR_NE, &e1, &e2);
+		jmp_append(fs, &defaultlist, e1.u.s.info);
+
+		lex_check(ls, TK_do);
+		parse_block(ls);
+		lex_match(ls, TK_end, TK_case, line);
+
+		jmp_append(fs, &escapelist, bcemit_jmp(fs));
+	}
+
+	if(ls->tok == TK_default)
+	{
+		lj_lex_next(ls);  // Skip 'default'.
+
+		jmp_tohere(fs, defaultlist);
+
+		parse_block(ls);
+		lex_match(ls, TK_end, TK_default, line);
+
+		jmp_append(fs, &escapelist, bcemit_jmp(fs));
+	}
+	else
+		jmp_tohere(fs, defaultlist);
+
+	jmp_tohere(fs, escapelist);
+
+	lex_match(ls, TK_end, TK_switch, line);
+}
+
 /* -- Parse statements ---------------------------------------------------- */
 
 /* Parse a statement. Returns 1 if it must be the last one in a chunk. */
 static int parse_stmt(LexState *ls)
 {
 	BCLine line = ls->linenumber;
-	switch (ls->tok) {
+
+	switch(ls->tok)
+	{
 	case TK_if:
 		parse_if(ls, line);
 		break;
 	case TK_continue:
 		lj_lex_next(ls);
 		parse_continue(ls, line);
-	break;
+		break;
+	case TK_switch:
+		parse_switch(ls, line);
+		break;
 	case TK_while:
 		parse_while(ls, line);
 		break;
@@ -2871,6 +2935,7 @@ GCproto *lj_parse(LexState *ls)
 	FuncScope bl;
 	GCproto *pt;
 	lua_State *L = ls->L;
+
 #ifdef LUAJIT_DISABLE_DEBUGINFO
 	ls->chunkname = lj_str_newlit(L, "=");
 #else

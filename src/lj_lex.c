@@ -348,10 +348,6 @@ static LexToken lex_scan(LexState *ls, TValue *tv)
 			while (!lex_iseol(ls) && ls->c != LEX_EOF)
 				lex_next(ls);
 			continue;
-		case '+':
-			lex_next(ls);
-			if (ls->c != '=') return '+';
-			return TK_pe;
 		case '[':
 		{
 			int sep = lex_skipeq(ls);

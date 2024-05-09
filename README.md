@@ -12,10 +12,11 @@ List of all features:
 - CMake build
 - One statement if block
 - Continue keyword
+- Switch / case
 
 Planned features:
-- Switch / case
 - Macros
+- Post/pre-increments
 
 See `examples` folder for examples of mlua
 
