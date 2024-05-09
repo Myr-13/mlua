@@ -1871,6 +1871,7 @@ static void parse_body(LexState *ls, ExpDesc *e, int needself, BCLine line)
 	FuncScope bl;
 	GCproto *pt;
 	ptrdiff_t oldbase = pfs->bcbase - ls->bcstack;
+
 	fs_init(ls, &fs);
 	fscope_begin(&fs, &bl, 0);
 	fs.linedefined = line;
@@ -1901,12 +1902,15 @@ static void parse_body(LexState *ls, ExpDesc *e, int needself, BCLine line)
 static BCReg expr_list(LexState *ls, ExpDesc *v)
 {
 	BCReg n = 1;
+
 	expr(ls, v);
-	while (lex_opt(ls, ',')) {
+	while(lex_opt(ls, ','))
+	{
 		expr_tonextreg(ls->fs, v);
 		expr(ls, v);
 		n++;
 	}
+
 	return n;
 }
 
@@ -2345,34 +2349,46 @@ static void parse_return(LexState *ls)
 {
 	BCIns ins;
 	FuncState *fs = ls->fs;
+
 	lj_lex_next(ls);  /* Skip 'return'. */
 	fs->flags |= PROTO_HAS_RETURN;
-	if (parse_isend(ls->tok) || ls->tok == ';') {  /* Bare return. */
+
+	if(parse_isend(ls->tok) || ls->tok == ';')  /* Bare return. */
 		ins = BCINS_AD(BC_RET0, 0, 1);
-	} else {  /* Return with one or more values. */
+	else
+	{  /* Return with one or more values. */
 		ExpDesc e;  /* Receives the _last_ expression in the list. */
 		BCReg nret = expr_list(ls, &e);
-		if (nret == 1) {  /* Return one result. */
-			if (e.k == VCALL) {  /* Check for tail call. */
-	BCIns *ip = bcptr(fs, &e);
-	/* It doesn't pay off to add BC_VARGT just for 'return ...'. */
-	if (bc_op(*ip) == BC_VARG) goto notailcall;
-	fs->pc--;
-	ins = BCINS_AD(bc_op(*ip)-BC_CALL+BC_CALLT, bc_a(*ip), bc_c(*ip));
-			} else {  /* Can return the result from any register. */
-	ins = BCINS_AD(BC_RET1, expr_toanyreg(fs, &e), 2);
+
+		if(nret == 1)  /* Return one result. */
+		{
+			if(e.k == VCALL)  /* Check for tail call. */
+			{
+				BCIns *ip = bcptr(fs, &e);
+
+				/* It doesn't pay off to add BC_VARGT just for 'return ...'. */
+				if(bc_op(*ip) == BC_VARG) goto notailcall;
+				fs->pc--;
+				ins = BCINS_AD(bc_op(*ip)-BC_CALL+BC_CALLT, bc_a(*ip), bc_c(*ip));
 			}
-		} else {
-			if (e.k == VCALL) {  /* Append all results from a call. */
-			notailcall:
-	setbc_b(bcptr(fs, &e), 0);
-	ins = BCINS_AD(BC_RETM, fs->nactvar, e.u.s.aux - fs->nactvar);
-			} else {
-	expr_tonextreg(fs, &e);  /* Force contiguous registers. */
-	ins = BCINS_AD(BC_RET, fs->nactvar, nret+1);
+			else  /* Can return the result from any register. */
+				ins = BCINS_AD(BC_RET1, expr_toanyreg(fs, &e), 2);
+		}
+		else
+		{
+			if (e.k == VCALL)  /* Append all results from a call. */
+			{
+				notailcall:
+				setbc_b(bcptr(fs, &e), 0);
+				ins = BCINS_AD(BC_RETM, fs->nactvar, e.u.s.aux - fs->nactvar);
+			} else
+			{
+				expr_tonextreg(fs, &e);  /* Force contiguous registers. */
+				ins = BCINS_AD(BC_RET, fs->nactvar, nret+1);
 			}
 		}
 	}
+
 	if (fs->flags & PROTO_CHILD)
 		bcemit_AJ(fs, BC_UCLO, 0, 0);  /* May need to close upvalues first. */
 	bcemit_INS(fs, ins);
