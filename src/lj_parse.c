@@ -2769,7 +2769,10 @@ static void parse_if(LexState *ls, BCLine line)
 		lj_lex_next(ls);  /* Skip 'else'. */
 
 		if(lex_opt(ls, '?'))
+		{
 			parse_block_one_stmt(ls);
+			one_stmt = 1;
+		}
 		else
 			parse_block(ls);
 	} else
