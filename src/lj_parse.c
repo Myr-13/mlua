@@ -2788,7 +2788,7 @@ static void parse_switch(LexState *ls, BCLine line)
 	GCstr *varname;
 	ExpDesc vare;
 	BCPos escapelist = NO_JMP;
-	BCPos defaultlist = NO_JMP;
+	BCPos default_jmp = NO_JMP;
 
 	lj_lex_next(ls);  // Skip 'switch'.
 	//varname = lex_str(ls);
@@ -2799,10 +2799,13 @@ static void parse_switch(LexState *ls, BCLine line)
 		ExpDesc e1, e2;
 		e1 = vare;
 
+		if(default_jmp != NO_JMP)
+			jmp_patchins(fs, default_jmp, fs->pc);
+
 		lj_lex_next(ls);  // Skip 'case'.
 		expr(ls, &e2);
 		bcemit_comp(fs, OPR_NE, &e1, &e2);
-		jmp_append(fs, &defaultlist, e1.u.s.info);
+		default_jmp = e1.u.s.info;
 
 		lex_check(ls, TK_do);
 		parse_block(ls);
@@ -2815,7 +2818,7 @@ static void parse_switch(LexState *ls, BCLine line)
 	{
 		lj_lex_next(ls);  // Skip 'default'.
 
-		jmp_tohere(fs, defaultlist);
+		jmp_patchins(fs, default_jmp, fs->pc);
 
 		parse_block(ls);
 		lex_match(ls, TK_end, TK_default, line);
@@ -2823,7 +2826,7 @@ static void parse_switch(LexState *ls, BCLine line)
 		jmp_append(fs, &escapelist, bcemit_jmp(fs));
 	}
 	else
-		jmp_tohere(fs, defaultlist);
+		jmp_patchins(fs, default_jmp, fs->pc);
 
 	jmp_tohere(fs, escapelist);
 
