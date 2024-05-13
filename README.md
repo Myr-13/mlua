@@ -8,15 +8,13 @@ LuaJIT is free software, released under the MIT license
 See full Copyright Notice in the COPYRIGHT file or in luajit.h
 
 # Features
-List of all features:
-- CMake build
-- One statement if block
-- Continue keyword
-- Switch / case
-
-Planned features:
-- Macros
-- Post/pre-increments
+[x] CMake build
+[x] One-statement if/while/for block
+[x] Continue keyword
+[x] Switch/case
+[x] Enum
+[ ] Macros
+[ ] Post/pre-increments
 
 See `examples` folder for examples of mlua
 
