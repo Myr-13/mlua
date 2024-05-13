@@ -1020,7 +1020,7 @@ static int lex_opt(LexState *ls, LexToken tok)
 /* Check and consume token. */
 static void lex_check(LexState *ls, LexToken tok)
 {
-	if (ls->tok != tok)
+	if(ls->tok != tok)
 		err_token(ls, tok);
 	lj_lex_next(ls);
 }
@@ -2196,12 +2196,12 @@ static void assign_hazard(LexState *ls, LHSVarList *lh, const ExpDesc *v)
 	for (; lh; lh = lh->prev) {
 		if (lh->v.k == VINDEXED) {
 			if (lh->v.u.s.info == reg) {  /* t[i], t = 1, 2 */
-	hazard = 1;
-	lh->v.u.s.info = tmp;
+				hazard = 1;
+				lh->v.u.s.info = tmp;
 			}
 			if (lh->v.u.s.aux == reg) {  /* t[i], i = 1, 2 */
-	hazard = 1;
-	lh->v.u.s.aux = tmp;
+				hazard = 1;
+				lh->v.u.s.aux = tmp;
 			}
 		}
 	}
@@ -2285,10 +2285,13 @@ static void parse_call_assign(LexState *ls)
 	}
 }
 
+static void parse_enum(LexState *ls, BCLine line, int islocal);
+
 /* Parse 'local' statement. */
 static void parse_local(LexState *ls)
 {
-	if (lex_opt(ls, TK_function)) {  /* Local function declaration. */
+	if(lex_opt(ls, TK_function))  /* Local function declaration. */
+	{
 		ExpDesc v, b;
 		FuncState *fs = ls->fs;
 		var_new(ls, 0, lex_str(ls));
@@ -2302,7 +2305,11 @@ static void parse_local(LexState *ls)
 		expr_toreg(fs, &b, v.u.s.info);
 		/* The upvalue is in scope, but the local is only valid after the store. */
 		var_get(ls, fs, fs->nactvar - 1).startpc = fs->pc;
-	} else {  /* Local variable declaration. */
+	}
+	else if(lex_opt(ls, TK_enum))
+		parse_enum(ls, ls->linenumber, 1);
+	else  /* Local variable declaration. */
+	{
 		ExpDesc e;
 		BCReg nexps, nvars = 0;
 		do {  /* Collect LHS. */
@@ -2836,6 +2843,48 @@ static void parse_switch(LexState *ls, BCLine line)
 	lex_match(ls, TK_end, TK_switch, line);
 }
 
+// Parse enum statement.
+static void parse_enum(LexState *ls, BCLine line, int islocal)
+{
+	FuncState *fs = ls->fs;
+	GCstr *enum_name = 0x0;
+	BCReg num = 0;
+
+	if(ls->tok != TK_begin)
+	{
+		enum_name = lex_str(ls);
+		lex_check(ls, TK_begin); // Skip 'begin'.
+	}
+	else
+		lj_lex_next(ls);
+
+	while(ls->tok == TK_name)
+	{
+		GCstr *var_name = lex_str(ls);
+		if(islocal)
+			var_new(ls, fs->freereg, var_name);
+		bcemit_AD(fs, BC_KSHORT, fs->freereg, num++);
+
+		if(islocal)
+			bcreg_reserve(fs, 1);
+		else
+		{
+			ExpDesc e;
+			e.k = VKSTR;
+			e.u.sval = var_name;
+			bcemit_AD(fs, BC_GSET, fs->freereg, const_str(fs, &e));
+		}
+
+		if(!lex_opt(ls, ','))
+			break;
+	}
+
+	if(islocal)
+		var_add(ls, num);
+
+	lex_match(ls, TK_end, TK_enum, line);
+}
+
 /* -- Parse statements ---------------------------------------------------- */
 
 /* Parse a statement. Returns 1 if it must be the last one in a chunk. */
@@ -2854,6 +2903,10 @@ static int parse_stmt(LexState *ls)
 		break;
 	case TK_switch:
 		parse_switch(ls, line);
+		break;
+	case TK_enum:
+		lj_lex_next(ls);
+		parse_enum(ls, line, 0);
 		break;
 	case TK_while:
 		parse_while(ls, line);
