@@ -112,7 +112,7 @@ typedef struct FuncScope {
 #define FSCOPE_CONTINUE     0x20    /* Continue used in scope */
 
 #define NAME_BREAK		((GCstr *)(uintptr_t)1)
-#define NAME_CONTINUE		((GCstr *)(uintptr_t)1)
+#define NAME_CONTINUE		((GCstr *)(uintptr_t)2)
 
 /* Index into variable stack. */
 typedef uint16_t VarIndex;
@@ -1305,21 +1305,27 @@ static void fscope_end(FuncState *fs)
 	var_remove(ls, bl->nactvar);
 	fs->freereg = fs->nactvar;
 	lj_assertFS(bl->nactvar == fs->nactvar, "bad regalloc");
-	if ((bl->flags & (FSCOPE_UPVAL|FSCOPE_NOCLOSE)) == FSCOPE_UPVAL)
+
+	if((bl->flags & (FSCOPE_UPVAL | FSCOPE_NOCLOSE)) == FSCOPE_UPVAL)
 		bcemit_AJ(fs, BC_UCLO, bl->nactvar, 0);
-	if ((bl->flags & FSCOPE_BREAK)) {
-		if ((bl->flags & FSCOPE_LOOP)) {
+
+	if(bl->flags & FSCOPE_BREAK)
+	{
+		if(bl->flags & FSCOPE_LOOP)
+		{
 			MSize idx = gola_new(ls, NAME_BREAK, VSTACK_LABEL, fs->pc);
 			ls->vtop = idx;  /* Drop break label immediately. */
 			gola_resolve(ls, bl, idx);
-		} else {  /* Need the fixup step to propagate the breaks. */
+		}
+		else  /* Need the fixup step to propagate the breaks. */
+		{
 			gola_fixup(ls, bl);
 			return;
 		}
 	}
-	if ((bl->flags & FSCOPE_GOLA)) {
+
+	if(bl->flags & FSCOPE_GOLA)
 		gola_fixup(ls, bl);
-	}
 }
 
 /* Mark scope as having an upvalue. */
